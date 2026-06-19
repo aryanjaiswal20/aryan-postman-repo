@@ -1,0 +1,64 @@
+$kind: http-request
+name: Register a new user
+url: "{{baseUrl}}/v1/users/register"
+method: POST
+headers:
+  Content-Type: application/json
+  Accept: application/json
+body:
+  type: json
+  content: |-
+    {
+      "username": "{{username}}",
+      "password": "{{password}}"
+    }
+  $type: |-
+    {
+      "type": "object",
+      "properties": {
+        "username": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
+        }
+      }
+    }
+events:
+  - listen: prerequest
+    script:
+      type: text/javascript
+      exec: |-
+        const username = 'user_' + pm.variables.replaceIn('{{$randomAlphaNumeric}}{{$randomAlphaNumeric}}{{$randomAlphaNumeric}}{{$randomAlphaNumeric}}{{$randomAlphaNumeric}}{{$randomAlphaNumeric}}');
+        const password = pm.variables.replaceIn('{{$randomPassword}}');
+        pm.collectionVariables.set('username', username);
+        pm.collectionVariables.set('password', password);
+  - listen: test
+    script:
+      type: text/javascript
+      exec: |-
+        pm.test('Status code is 201', function () {
+            pm.response.to.have.status(201);
+        });
+        const jsonData = pm.response.json();
+        pm.collectionVariables.set('userId', jsonData.id);
+scripts:
+  - type: beforeRequest
+    code: |-
+      const username = pm.variables.replaceIn('{{$randomUserName}}');
+      const password = pm.variables.replaceIn('{{$randomPassword}}');
+
+      pm.collectionVariables.set('username', username);
+      pm.collectionVariables.set('password', password);
+    language: text/javascript
+  - type: afterResponse
+    code: |-
+      pm.test('Status code is 201', function () {
+          pm.response.to.have.status(201);
+      });
+
+      const jsonData = pm.response.json();
+      pm.collectionVariables.set('userId', jsonData.id);
+    language: text/javascript
+examples: ./.resources/Register a new user.resources/examples
+order: 1000

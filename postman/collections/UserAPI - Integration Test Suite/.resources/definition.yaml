@@ -1,0 +1,16 @@
+$kind: collection
+name: UserAPI - Integration Test Suite
+description: This is description of my project
+variables:
+  baseUrl: /
+  username: ""
+  password: ""
+  userId: ""
+auth:
+  - id: fff0603f-bf24-47f8-bb67-518f20920f11
+    type: apikey
+    name: apikey auth
+    credentials:
+      key: X-API-Key
+      value: "{{apiKey}}"
+      in: header
